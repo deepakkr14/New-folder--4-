@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Socket.io Chat App</title>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <input id="messageInput" autocomplete="off" /><button
+      onclick="sendMessage()"
+    >
+      Send
+    </button>
+    <input id="roomInput" autocomplete="off" /><button onclick="sendroom()">
+      Send room
+    </button>
+    <button onclick="leave()">Leave room</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script> -->
+    <script>
+      // const socket = io("http://localhost:3000");
+      var socket = io({transports: ['websocket'], upgrade: false});
+      function sendMessage() {
+        const message = document.getElementById("messageInput").value;
+        const room = document.getElementById("roomInput").value;
+        if (!room) {
+          socket.emit("chat message", message);
+          document.getElementById("messageInput").value = "";
+        } else {
+          socket.emit("private message", { message: message, room: room });
+          document.getElementById("messageInput").value = "";
+        }
+      }
+
+      // socket.on("recieved message", (msg) => {
+      //   const ul = document.getElementById("messages");
+      //   const li = document.createElement("li");
+      //   li.appendChild(document.createTextNode(msg));
+      //   ul.appendChild(li);
+      // });
+      socket.on("private message", (msg) => {
+        const ul = document.getElementById("messages");
+        const li = document.createElement("li");
+        li.appendChild(document.createTextNode(msg));
+        ul.appendChild(li);
+      });
+      function sendroom() {
+        const room = document.getElementById("roomInput").value;
+        socket.emit("join room", room);
+        console.log(`Joined room ${room}`);
+      }
+      function leave() {
+        const room = document.getElementById("roomInput").value;
+        socket.emit("leave room", room);
+        console.log(`leaving room ${room}`);
+      }
+    </script>
+  </body>
+</html>
