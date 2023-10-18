@@ -261,19 +261,14 @@ exports.deleteGroupMember = async (req, res) => {
 
 exports.postUploadFile = async (req, res) => {
   try{
-    console.log(' mai yaha fhau jhuu huu')
+   
       const userId = req.user.id;
       const groupId = req.query.groupId;
-console.log(groupId)
-      const file = req.file; // get the file; name='myFile' is in the <input>
-      console.log('fdfsdff')
+
+      const file = req.file; 
+      
       // const extensionName = path.extname(file.name); // fetch the file extension
       // const allowedExtension = ['.png','.jpg','.jpeg'];
-      // if(!allowedExtension.includes(extensionName)){
-        //   res.status(422).json({ msg: 'Invalid file extension' });
-        //   return;
-        // }
-        // console.log(extensionName)
         const date = new Date().toISOString().replace(/:/g,'-');
         const fileName = `Photo_${date}_${userId}_${groupId}_${file}`;
         
