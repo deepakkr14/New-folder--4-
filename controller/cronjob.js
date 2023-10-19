@@ -5,7 +5,7 @@ const {Messages, ArchivedChats } = require('../models/database');
 
 
 // Schedule the cron job to run every night
-exports.midNightWork = async()=>{
+exports.night = async()=>{
   console.log('function executed');
   new CronJob('0 0 * * *', async () => {
   console.log('cron executed');

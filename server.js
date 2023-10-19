@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 const chatRoute = require('./routes/chat');
 const userRoute = require('./routes/user-routes');
+const cronjob = require('./controller/cronjob');
 app.use(chatRoute)
 app.use(userRoute)
 
@@ -50,7 +51,7 @@ socket.on("invite",(email)=>{
     console.log("User disconnected");
   });
 });
-
+cronjob.night();
 server.listen(3000, () => {
   console.log("Server listening on *:3000");
 });
