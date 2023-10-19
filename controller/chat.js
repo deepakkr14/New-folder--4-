@@ -3,6 +3,12 @@ const path = require("path");
 const sequelize = require("../sequelize");
 const { Op } = require("sequelize");
 const { User, Messages, Group, GroupsUser } = require("../database");
+
+exports.chatPage=(req,res,next)=>{
+  res.sendFile(path.join(__dirname, '../', 'public', 'messages.html'));
+}
+
+
 exports.postChat = async (req, res, next) => {
   let t = await sequelize.transaction();
   console.log(req.body.text);
@@ -68,7 +74,7 @@ exports.groupData = async (req, res, next) => {
     // const groups = await Group.findAll({ where: { name: roomName } });
     const chats = await Messages.findAll({
       where: { groupId: roomid },
-      attributes: ["message", "userId"],
+      attributes: ["message", "userId","media"],
       include: [
         {
           model: User,
@@ -256,34 +262,5 @@ exports.deleteGroupMember = async (req, res) => {
   }catch(err){
       console.log('DELETE GROUP MEMBER ERROR');
       res.status(500).json({ error: err, msg: 'Could not delete group member' });
-  }
-}
-
-exports.postUploadFile = async (req, res) => {
-  try{
-   
-      const userId = req.user.id;
-      const groupId = req.query.groupId;
-
-      const file = req.file; 
-      
-      // const extensionName = path.extname(file.name); // fetch the file extension
-      // const allowedExtension = ['.png','.jpg','.jpeg'];
-        const date = new Date().toISOString().replace(/:/g,'-');
-        const fileName = `Photo_${date}_${userId}_${groupId}_${file}`;
-        
-        // const fileURL = await S3Services.uploadToS3(file.data, fileName);
-        
-        console.log('fdfsdff22')
-      const chat = await Messages.create({
-          message: fileURL,
-          userId,
-          groupId,
-      });
-
-      res.status(201).json(chat);
-  }catch(err){
-      console.log('POST UPLOAD FILE ERROR');
-      res.status(500).json({ error: err, msg: 'Could not upload file' });
   }
 }

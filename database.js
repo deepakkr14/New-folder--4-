@@ -132,5 +132,5 @@ module.exports = {
   Messages: Messages,
   Group: Group,
   GroupsUser: GroupsUser,
-  // ArchivedChats: ArchivedChats
+  ArchivedChats: ArchivedChats
 };

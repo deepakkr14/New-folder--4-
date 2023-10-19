@@ -1,5 +1,3 @@
-// const { request } = require("express");
-
 const socket = io("http://localhost:3000");
 // Group members
 const groupMembersContainer = document.getElementById("groupMembersContainer");
@@ -22,11 +20,11 @@ async function viewRooms() {
     if (response.data.data.length == 0) {
       alert("currently you are in no groups");
     }
-    // return document.getElementById('no-group').style='display';}
+   
     else {
       for (let i of response.data.data) {
         appendGroups(i.name, i.id);
-        // document.getElementById('no-group').style.display="none";
+      
       }
     }
   } catch (err) {
@@ -40,10 +38,7 @@ async function viewRooms() {
 // SETTING HEADER OF USERNAEME
 document.getElementById("username").innerText =
   localStorage.getItem("username");
-// function grouppp() {
-//   alert(" i am a group");
-// }
-// })
+
 async function sendMessage() {
   console.log("i am calling");
 
@@ -224,7 +219,7 @@ function appendGroups(gname, id) {
     localStorage.setItem("groupId", id);
     groupData(id);
     sendroom(gname);
-    // getGroupMembers(id)
+ 
   });
 }
 // Function to send a request to a group
@@ -233,7 +228,7 @@ async function groupData(gname) {
     headers: { Authorization: token },
   });
   console.log(group);
-  // alert(`user connected to room ${gname}`);
+
   if (group.data.chats.length == 0) {
     document.getElementById("messagediv").innerHTML = "<h1>NO CHATS!</h1>";
   }
@@ -241,38 +236,38 @@ async function groupData(gname) {
   for (let i of group.data.chats) {
     if (i.user.name == localStorage.getItem("username")) {
       sentMessages(i.message);
-    } else {
+
+    }
+    else if(i.user.name == localStorage.getItem("username") && i.media==true )
+    {appendMediaMessageSent(i.messsage)}
+    else if(i.media==true){
+      appendImageReceived(i.message)
+    }
+    else {
       recievedMsg(i.message, i.user.name);
     }
   }
   console.log("request sent yo ", gname);
 }
-///
+
 document
   .getElementById("getGroupMembers")
   .addEventListener("click", async () => {
     let id = localStorage.getItem("groupId");
-    // let isAdmin=group.data.chats[0].group.admin==document.getElementById("username").innerText?true:false;
     try {
       const res = await axios.get(
         `http://localhost:3000/group/members?groupId=${id}`,
         { headers: { Authorization: token } }
       );
-
-      console.log(res);
       const members = res.data.members;
       const admins = res.data.admin;
-      console.log(" i a  amf herer");
-
       groupMembersContainer.style.display = "block";
       groupMembersTableBody.innerText = "";
-
-      // const currentUserAdminCheck = admins.filter((admin) => admin.user.email === USER_EMAIL);
       const currentUserAdmin =
         res.data.admin.admin == localStorage.getItem("username") ? true : false;
-      console.log(currentUserAdmin);
+
       members.forEach((members) =>
-        addGroupMemberInDOM(members, admins, currentUserAdmin)
+        addGroupMemberInDOM(members, admins)
       );
     } catch {
       (err) => {
@@ -284,15 +279,15 @@ document
       };
     }
   });
-// function getGroupMembers(){
 
-function addGroupMemberInDOM(member, admins, currentUserAdmin) {
+
+function addGroupMemberInDOM(member, admins) {
   const UserAdmin = member.name == admins.admin ? true : false;
 
   const tr = document.createElement("tr");
-  // if (member.username === USERNAME) {
+
   tr.classList.add("table-info");
-  // }
+
 
   tr.innerHTML = `
       <td>${member.name}</td>
@@ -371,16 +366,11 @@ function addGroupMemberInDOM(member, admins, currentUserAdmin) {
       );
 
       const msg = res.data.msg;
-      // showSuccessInDOM(msg, 5000);
       alert(msg);
       groupMembersTableBody.removeChild(tr);
     } catch {
       (err) => {
         let msg = "Could not delete group member :(";
-        // if(err.response && err.response.data && err.response.data.msg){
-        //     msg = err.response.data.msg;
-        // }
-        // showErrorInDOM(msg);
         alert(err.response.data.msg);
       };
     }
@@ -395,7 +385,6 @@ const sendbtn = document.getElementById("sendbtnn");
 sendbtn.addEventListener("click", async (e) => {
   // e.preventDefault();
   const file = document.querySelector('input[type=file]').files;
-  console.log("ye hfa ffike", file[0]);
   const formData = new FormData();
   formData.append("file", file[0]);
   const id = localStorage.getItem("groupId");
@@ -410,19 +399,50 @@ sendbtn.addEventListener("click", async (e) => {
         },
       }
     );
-
-
     console.log(res);
-    // addChatInDOM(chat);
+    appendMediaMessageSent(res.link)
+   
   } catch {
     (err) => {
       let msg = "Failed to upload image.";
-      if (err.response && err.response.data && err.response.data.msg) {
-        msg = err.response.data.msg;
-      }
-      // showErrorInDOM(msg);
-      alert(err)
+      alert(msg,err)
     };
   }
 });
-// })
+
+function appendMediaMessageSent(link){
+  const container = document.getElementById("messagediv");
+const outgoingMessageDiv = document.createElement('div');
+outgoingMessageDiv.classList.add('outgoing-message', 'd-flex', 'flex-row', 'justify-content-end');
+const innerDiv = document.createElement('div');
+const fileLink = document.createElement('a');
+fileLink.href = link;
+fileLink.target = '_blank';
+fileLink.classList.add('me-3', 'mb-3');
+const img = document.createElement('img');
+img.src = 'path_to_image_outgoing.jpg';
+img.alt = 'download file';
+img.style.maxWidth = '100px';
+fileLink.appendChild(img);
+innerDiv.appendChild(fileLink);
+outgoingMessageDiv.appendChild(innerDiv);
+container.appendChild(outgoingMessageDiv);
+}
+function appendImageReceived(link){
+  const container = document.getElementById("messagediv");
+const outgoingMessageDiv = document.createElement('div');
+outgoingMessageDiv.classList.add('incoming-message', 'd-flex', 'flex-row', 'justify-content-start');
+const innerDiv = document.createElement('div');
+const fileLink = document.createElement('a');
+fileLink.href = link;
+fileLink.target = '_blank';
+fileLink.classList.add('me-3', 'mb-3');
+const img = document.createElement('img');
+img.src = 'path_to_image_incoming.jpg';
+img.alt = 'download file';
+img.style.maxWidth = '100px';
+fileLink.appendChild(img);
+innerDiv.appendChild(fileLink);
+outgoingMessageDiv.appendChild(innerDiv);
+container.appendChild(outgoingMessageDiv);
+}

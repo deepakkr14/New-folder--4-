@@ -51,7 +51,7 @@ exports.uploadS3 = async(req,res,next) =>{
         },{transaction: t}
         );
 console.log(chat)
-        res.send(chat);
+        res.status(200).json({link:S3res.Location});
 
         await t.commit();
 
